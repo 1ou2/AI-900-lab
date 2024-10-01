@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes predictor</title>
+    <style>
+ body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-size: 0.9em;
+            margin-bottom: 2px;
+            color: #555;
+        }
+        input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        button {
+            grid-column: 1 / -1;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>Diabetes Details Form</h1>
+    <form id="patientForm">
+        <div class="form-group">
+            <label for="PatientID">Patient ID:</label>
+            <input type="number" id="PatientID" name="PatientID" required value="1882185">
+        </div>
+        
+        <div class="form-group">
+            <label for="Pregnancies">Pregnancies:</label>
+            <input type="number" id="Pregnancies" name="Pregnancies" required value="9">
+        </div>
+        
+        <div class="form-group">
+            <label for="PlasmaGlucose">Plasma Glucose:</label>
+            <input type="number" id="PlasmaGlucose" name="PlasmaGlucose" required value="104">
+        </div>
+        
+        <div class="form-group">
+            <label for="DiastolicBloodPressure">Diastolic Blood Pressure:</label>
+            <input type="number" id="DiastolicBloodPressure" name="DiastolicBloodPressure" required value="51">
+        </div>
+        
+        <div class="form-group">
+            <label for="TricepsThickness">Triceps Thickness:</label>
+            <input type="number" id="TricepsThickness" name="TricepsThickness" required value="7">
+        </div>
+        
+        <div class="form-group">
+            <label for="SerumInsulin">Serum Insulin:</label>
+            <input type="number" id="SerumInsulin" name="SerumInsulin" required value="24">
+        </div>
+        
+        <div class="form-group">
+            <label for="BMI">BMI:</label>
+            <input type="number" id="BMI" name="BMI" step="0.00000001" required value="27.36983156">
+        </div>
+        
+        <div class="form-group">
+            <label for="DiabetesPedigree">Diabetes Pedigree:</label>
+            <input type="number" id="DiabetesPedigree" name="DiabetesPedigree" step="0.0000000001" required value="1.3504720469999998">
+        </div>
+        
+        <div class="form-group">
+            <label for="Age">Age:</label>
+            <input type="number" id="Age" name="Age" required value="43">
+        </div>
+        
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('patientForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = {
+                Inputs: {
+                    input1: [
+                        Object.fromEntries(formData)
+                    ]
+                },
+                GlobalParameters: {}
+            };
+
+            try {
+                const response = await fetch('http://localhost:8001', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                // Extract the predicted price
+        const predicted = result.Results.output1[0].Probability;
+        // print to console
+        console.log(result)
+        console.log("prediction " + predicted)
+        
+        // Display the result
+        document.getElementById('result').textContent = `Predicted Diabetes: ${predicted.toFixed(2)}`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').textContent = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
